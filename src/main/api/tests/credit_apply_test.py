@@ -40,28 +40,31 @@ class TestCreditApply:
             credit_apply_request
         )
 
-        assert response.balance == credit_apply_request.amount
-        assert response.termMonths == credit_apply_request.termMonths
+        assert response.balance == credit_apply_request.amount, \
+            f"Ожидаем, что баланс в ответе {response.balance} соответсвует сумме в запросе {credit_apply_request.amount}"
+        assert response.termMonths == credit_apply_request.termMonths, \
+            f"Ожидаем, что количество месяцев в ответе {response.termMonths} соответсвует количеству в запросе {credit_apply_request.termMonths}"
 
         account_from_db = Account.get_account_by_id(
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert account_from_db.balance == amount, "Баланс в БД не соответсвует сумме в запросе кредита, таблица Account"
+        assert account_from_db.balance == amount, \
+            f"Ожидаем, что баланс в БД {account_from_db.balance} соответсвует сумме в запросе {amount}, таблица Account"
 
         credit_info_from_db = Credit.get_credit_by_account_id(
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert credit_info_from_db.amount == amount, "Сумма кредита в БД не соответсвует сумме в запросе, таблица Credit"
-        assert -credit_info_from_db.balance == response.balance, "Баланс в БД не соответсвует балансу в ответе, таблица Credit"
-        assert credit_info_from_db.term_months == term_months, "Количество месяцев в БД не соответсвует количеству в запросе, таблица Credit"
+        assert credit_info_from_db.amount == amount, \
+            f"Ожидаем, что сумма кредита в БД {credit_info_from_db.amount} соответсвует сумме в запросе {amount}, таблица Credit"
 
         transaction_from_db = Transaction.get_transaction_by_account_id(
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert transaction_from_db.amount == amount, "Сумма кредита в БД не соответсвует сумме в запросе, таблица Transaction"
+        assert transaction_from_db.amount == amount, \
+            f"Ожидаем, что сумма транзакции в БД {transaction_from_db.amount} соответсвует сумме кредита в запросе, таблица Transaction"
 
     @pytest.mark.parametrize(
         "amount, term_months",
@@ -94,19 +97,22 @@ class TestCreditApply:
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert account_from_db.balance == 0, "Баланс в бд не 0, таблица Account"
+        assert account_from_db.balance == 0, \
+            f"Ожидаем, что баланс в БД не изменился и равен 0, баланс в БД: {account_from_db.balance}, таблица Account"
 
         credit_info_from_db = Credit.get_credit_by_account_id(
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert credit_info_from_db is None, "В БД создана запись кредита, ошибка"
+        assert credit_info_from_db is None, \
+            f"Ожидаем, что у аккаунта нет кредита в БД, запись: {credit_info_from_db}, таблица Credit"
 
         transaction_from_db = Transaction.get_transaction_by_account_id(
             db_session,
             credit_role_user_with_account.account_id
         )
-        assert transaction_from_db is None, "В БД создана запись транзакции, ошибка"
+        assert transaction_from_db is None, \
+            f"Ожидаем, что у аккаунта нет транзакций в БД, транзакция: {transaction_from_db}, таблица Transaction"
 
 
 

@@ -17,11 +17,12 @@ class TestCreateAccount:
     ):
         response = api_manager.user_steps.create_account(created_user_request)
 
-        assert response.balance == 0
+        assert response.balance == 0, \
+            f"Ожидаем, что у созданного счёта баланс нулевой, баланс в ответе {response.balance}"
 
         account_from_db = Account.get_account_by_id(db_session, response.id)
-        assert account_from_db.id == response.id, "Аккаунт не создан, id аккаунта нет в БД"
-        assert account_from_db.balance is not None, "Поле баланса для созданного аккаунта отсутсвует в БД"
+        assert account_from_db.balance == 0, \
+            f"Ожидаем, что баланс в БД нулевой, баланс в БД: {account_from_db.balance}, таблица Account"
 
     def test_create_second_account(
         self,
@@ -32,7 +33,8 @@ class TestCreateAccount:
         api_manager.user_steps.create_account(user_with_account.create_user_request)
 
         count_accounts_from_db = Account.count_accounts_by_user_id(db_session, user_with_account.user_id)
-        assert count_accounts_from_db == 2, "Количество счетов не 2, ошибка"
+        assert count_accounts_from_db == 2, \
+            f"Ожидаем, что у пользователя в БД 2 счёта, количестов счетов в БД: {count_accounts_from_db}, таблица Account"
 
     def test_create_account_invalid(
         self,
@@ -43,4 +45,5 @@ class TestCreateAccount:
         api_manager.user_steps.create_account_invalid(user_with_two_accounts.create_user_request)
 
         count_accounts_from_db = Account.count_accounts_by_user_id(db_session, user_with_two_accounts.user_id)
-        assert count_accounts_from_db == 2, "Изменилось количество счетов на аккаунте, ошибка"
+        assert count_accounts_from_db == 2, \
+            f"Ожидаем, что у пользователя в БД 2 счёта, количество счетов в БД: {count_accounts_from_db}, таблица Account"

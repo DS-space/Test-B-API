@@ -24,20 +24,24 @@ class TestCreditRepayment:
         )
         response = api_manager.user_steps.repayment(credit_role_user_with_loan.create_user_request, repayment_request)
 
-        assert response.amountDeposited == repayment_request.amount
-        assert response.creditId == repayment_request.creditId
+        assert response.amountDeposited == repayment_request.amount, \
+            f"Ожидаем, что сумма депозита в ответе {response.amountDeposited} соответсвует сумме в запросе {repayment_request.amount}"
+        assert response.creditId == repayment_request.creditId, \
+            f"Ожидаем, что id кредита в ответе {response.creditId} соответсвует id в запросе {repayment_request.creditId}"
 
         credit_info_from_db = Credit.get_credit_by_id(
             db_session,
             credit_role_user_with_loan.credit_id
         )
-        assert credit_info_from_db.balance == 0, "Баланс в БД не 0, таблица Credit"
+        assert credit_info_from_db.balance == 0, \
+            f"Ожидаем, что баланс в БД после закрытия кредита нулевой, баланс: {credit_info_from_db.balance}, таблица Credit"
 
         transaction_from_db = Transaction.get_transaction_by_credit_id(
             db_session,
             credit_role_user_with_loan.credit_id
         )
-        assert transaction_from_db.amount == credit_role_user_with_loan.amount, "Сумма транзакции в БД не соответсвует сумме в запросе, таблица Transaction"
+        assert transaction_from_db.amount == credit_role_user_with_loan.amount, \
+            f"Ожидаем, что сумма транзакции в БД {transaction_from_db.amount} соответсвует сумме депозита в запросе {credit_role_user_with_loan.amount}, таблица Transaction"
 
 
     def test_repayment_invalid(
@@ -57,11 +61,13 @@ class TestCreditRepayment:
             db_session,
             credit_role_user_with_loan.credit_id
         )
-        assert credit_info_from_db.balance == -credit_role_user_with_loan.amount, "Баланс в БД не соответсвует задолжности юзера, таблица Credit"
+        assert credit_info_from_db.balance == -credit_role_user_with_loan.amount, \
+            f"Ожидаем, что задолженность в БД {credit_info_from_db.balance} равна отрицательной сумме кредита -{credit_role_user_with_loan.amount}, таблица Credit"
 
         transaction_from_db = Transaction.get_transaction_by_credit_id(
             db_session, credit_role_user_with_loan.credit_id
         )
-        assert transaction_from_db is None, "БД вернула запись транзакции, ожидали что транзакции в БД нет"
+        assert transaction_from_db is None, \
+            f"Ожидаем, что транзакции в БД нет, транзакция: {transaction_from_db}, таблица Transaction"
 
 

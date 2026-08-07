@@ -21,11 +21,14 @@ class TestCreateUser:
     ):
         response = api_manager.admin_steps.create_user(create_user_request)
 
-        assert create_user_request.username == response.username
-        assert create_user_request.role == response.role
+        assert create_user_request.username == response.username, \
+            f"Ожидаем, что username в запросе {create_user_request.username!r} соответсвует username в ответе {response.user.username!r}"
+        assert create_user_request.role == response.role, \
+            f"Ожидаем, что роль в запросе {create_user_request.role!r} соответсвует роли в ответе {response.user.role!r} "
 
         user_from_db = User.get_user_by_username(db_session, create_user_request.username)
-        assert user_from_db.username == create_user_request.username, "Созданного пользователя нет в БД"
+        assert user_from_db.role == create_user_request.role, \
+            f"Ожидаем, что роль пользователя в БД {user_from_db.role!r} соответсвует роли в запросе {create_user_request.role}, таблица User"
 
     @pytest.mark.parametrize(
         "username, password",
@@ -52,7 +55,8 @@ class TestCreateUser:
         api_manager.admin_steps.create_user_invalid(create_user_request)
 
         user_from_db = User.get_user_by_username(db_session, create_user_request.username)
-        assert user_from_db is None, "Пользователь создан, ошибка"
+        assert user_from_db is None, \
+            f"Ожидаем, что пользователя {create_user_request.username!r} нет в БД, таблица User"
 
 
 

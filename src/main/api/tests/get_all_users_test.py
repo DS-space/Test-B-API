@@ -15,4 +15,5 @@ class TestGetAllUsers:
         response = api_manager.admin_steps.get_all_users()
 
         count_users_from_db = User.count_all_users(db_session)
-        assert len(response.root) == count_users_from_db, "Количество пользователей в БД не соответсвует количеству в запросе, таблица User"
+        assert len(response.root) == count_users_from_db, \
+            f"Ожидаем, что количество юзеров в ответе {len(response.root)} соответсвует количеству юзерор в БД {count_users_from_db}"

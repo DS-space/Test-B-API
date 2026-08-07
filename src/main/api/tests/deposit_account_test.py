@@ -29,13 +29,16 @@ class TestDeposit:
         deposit_account_request = DepositAccountRequest(accountId=created_account.id, amount=amount)
         response = api_manager.user_steps.deposit_account(created_user_request, deposit_account_request)
 
-        assert response.balance == deposit_account_request.amount
+        assert response.balance == deposit_account_request.amount, \
+            f"Ожидаем, что баланс в ответе {response.balance} соответсвует сумме депозита в запросе {deposit_account_request.amount}"
 
         account_from_db = Account.get_account_by_id(db_session, created_account.id)
-        assert account_from_db.balance == response.balance, "Баланс в ответе не соответствует балансу в БД, таблица Account"
+        assert account_from_db.balance == response.balance, \
+            f"Ожидаем, что баланс в БД {account_from_db.balance} соотвествует балансу в ответе {response.balance}, таблица Account"
 
         deposit_transaction_from_db = Transaction.get_transaction_by_account_id(db_session, response.id)
-        assert deposit_transaction_from_db.amount == deposit_account_request.amount, "Сумма в БД не соответсвует сумме в запросе, таблица Transaction"
+        assert deposit_transaction_from_db.amount == deposit_account_request.amount, \
+            f"Ожидаем, что сумма в БД {deposit_transaction_from_db.amount} соответсвует сумме в запросе {deposit_account_request.amount}, таблица Transaction"
 
     @pytest.mark.parametrize(
         "amount",
@@ -59,8 +62,10 @@ class TestDeposit:
         )
 
         deposits_account_from_db = Transaction.get_transaction_by_account_id(db_session, created_account.id)
-        assert deposits_account_from_db is None, "По счёту найдены транзакции, ошибка"
+        assert deposits_account_from_db is None, \
+            f"Ожидаем, что по счёту нет транзакий, транзакция в БД: {deposits_account_from_db}, Таблица Transaction"
 
         account_from_db = Account.get_account_by_id(db_session, created_account.id)
-        assert account_from_db.balance == 0, "Баланс счёта должен быть нулевым, ошибка"
+        assert account_from_db.balance == 0, \
+            f"Ожидаем, что баланс в БД не изменился и равен 0, баланс в БД: {account_from_db.balance}, таблица Account"
 

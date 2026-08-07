@@ -37,16 +37,22 @@ class TestTransfer:
             transfer_request
         )
 
-        assert response.fromAccountIdBalance == user_with_two_9k_deposits.balance - amount
+        assert response.fromAccountIdBalance == user_with_two_9k_deposits.balance - amount, \
+            (f"Ожидаем, что баланс отправителя в ответе {response.fromAccountIdBalance} соответсвует "
+             f"сумме(баланс до перевода - сумма перевода) {user_with_two_9k_deposits.balance - amount}")
 
         owner_account_from_db = Account.get_account_by_id(db_session, user_with_two_9k_deposits.account_id)
-        assert owner_account_from_db.balance == user_with_two_9k_deposits.balance - amount, "Баланс в БД не соответсвует ожидаемому (Баланс до перевода - сумма перевода), таблица Account"
+        assert owner_account_from_db.balance == user_with_two_9k_deposits.balance - amount, \
+            (f"Ожидаем, что баланс отправителя в БД {owner_account_from_db.balance} соответсвует "
+             f"сумме(баланс до перевода - сумма перевода) {user_with_two_9k_deposits.balance - amount}, таблица Account")
 
         recipient_account_from_db = Account.get_account_by_id(db_session, recipient_account.id)
-        assert recipient_account_from_db.balance == amount, "Баланс в БД не соответсвует ожидаемому, таблица Account"
+        assert recipient_account_from_db.balance == amount, \
+            f"Ожидаем, что баланс получателя в БД {recipient_account_from_db.balance} соответсвует сумме перевода {amount}, таблица Account"
 
         transaction_from_db = Transaction.get_transaction_transfer_by_accounts_id(db_session, user_with_two_9k_deposits.account_id, recipient_account.id)
-        assert transaction_from_db.amount == amount, "Сумма перевода в БД не соответсвует сумме перевода в запросе, таблица Transaction"
+        assert transaction_from_db.amount == amount, \
+            f"Ожидаем, что сумма транзакции в БД {transaction_from_db.amount} соответсвует сумме перевода {amount}, таблица Transaction"
 
     @pytest.mark.parametrize(
         "amount",
@@ -72,13 +78,17 @@ class TestTransfer:
         )
 
         owner_account_from_db = Account.get_account_by_id(db_session, user_with_two_9k_deposits.account_id)
-        assert owner_account_from_db.balance == user_with_two_9k_deposits.balance, "Изменился баланс в БД у отправителя, таблица Account"
+        assert owner_account_from_db.balance == user_with_two_9k_deposits.balance, \
+            (f"Ожидаем, что баланс отправителся в БД {owner_account_from_db.balance} не изменился и "
+             f"равен балансу в ответе депозита{user_with_two_9k_deposits.balance}, таблица Account")
 
         recipient_account_from_db = Account.get_account_by_id(db_session, recipient_account.id)
-        assert recipient_account_from_db.balance == 0, "Баланс у получателя не 0, таблица Account"
+        assert recipient_account_from_db.balance == 0, \
+            f"Ожидаем, что баланс получателя в БД {recipient_account_from_db.balance} не изменился и равен нулю, таблица Account"
 
         transaction_from_db = Transaction.get_transaction_transfer_by_accounts_id(db_session, user_with_two_9k_deposits.account_id, recipient_account.id)
-        assert transaction_from_db is None, "Транзакция есть в БД, ошибка, таблица Transaction"
+        assert transaction_from_db is None, \
+            f"Ожидаем, что транзакции в БД по этому счёту нет, транзакция: {transaction_from_db}, таблица Transaction"
 
 
 
