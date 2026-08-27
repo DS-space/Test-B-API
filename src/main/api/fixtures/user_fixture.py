@@ -11,6 +11,7 @@ from src.main.api.models.deposit_account_request import DepositAccountRequest
 from src.main.api.models.user_credit_with_account import UserCreditWithAccount
 from src.main.api.models.user_with_account import UserWithAccount
 from src.main.api.models.user_with_active_credit import UserWithActiveCredit
+from src.main.api.models.user_with_two_accounts import UserWithTwoAccounts
 from src.main.api.models.user_with_two_deposits import UserWithTwoDeposits
 
 
@@ -83,12 +84,33 @@ def user_with_account(api_manager: ApiManager) -> BaseModel:
 def user_with_two_accounts(api_manager: ApiManager) -> BaseModel:
     user_request = RandomModelGenerator.generate(CreateUserRequest)
     user_response = api_manager.admin_steps.create_user(user_request)
-    api_manager.user_steps.create_account(user_request)
-    api_manager.user_steps.create_account(user_request)
+
+    create_first_acc_response = api_manager.user_steps.create_account(user_request)
+    deposit_first_acc_response = api_manager.user_steps.deposit_account(
+        user_request,
+        DepositAccountRequest(
+            accountId=create_first_acc_response.id,
+            amount=9000
+        )
+    )
+
+    create_second_acc_response = api_manager.user_steps.create_account(user_request)
+    deposit_second_acc_response = api_manager.user_steps.deposit_account(
+        user_request,
+        DepositAccountRequest(
+            accountId=create_second_acc_response.id,
+            amount=9000
+        )
+    )
+
     return (
-        UserWithAccount(
+        UserWithTwoAccounts(
             create_user_request=user_request,
-            user_id=user_response.id
+            user_id=user_response.id,
+            first_account_id=create_first_acc_response.id,
+            first_balance=deposit_first_acc_response.balance,
+            second_account_id=create_second_acc_response.id,
+            second_balance=deposit_second_acc_response.balance
         )
     )
 

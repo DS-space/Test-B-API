@@ -5,6 +5,7 @@ from src.main.api.classes.api_manager import ApiManager
 from src.main.api.db.crud.account_crud import AccountCrudDb as Account
 from src.main.api.models.create_user_request import CreateUserRequest
 from src.main.api.models.user_with_account import UserWithAccount
+from src.main.api.models.user_with_two_accounts import UserWithTwoAccounts
 
 
 @pytest.mark.api
@@ -40,7 +41,7 @@ class TestCreateAccount:
         self,
         api_manager: ApiManager,
         db_session: Session,
-        user_with_two_accounts: UserWithAccount,
+        user_with_two_accounts: UserWithTwoAccounts,
     ):
         api_manager.user_steps.create_account_invalid(user_with_two_accounts.create_user_request)
 
