@@ -10,7 +10,9 @@ from src.main.api.models.create_account_response import CreateAccountResponse
 from src.main.api.models.transfer_request import TransferRequest
 from src.main.api.db.crud.account_crud import AccountCrudDb as Account
 from src.main.api.db.crud.transaction_crud import TransactionCrudDb as Transaction
+from src.main.api.models.user_with_account import UserWithAccount
 from src.main.api.models.user_with_two_deposits import UserWithTwoDeposits
+from src.main.api.models.user_with_two_accounts import UserWithTwoAccounts
 
 
 @pytest.mark.api
@@ -90,7 +92,33 @@ class TestTransfer:
         assert transaction_from_db is None, \
             f"Ожидаем, что транзакции в БД по этому счёту нет, транзакция: {transaction_from_db}, таблица Transaction"
 
+    def test_transfer_to_self(
+        self,
+        api_manager: ApiManager,
+        db_session: Session,
+        user_with_two_accounts: UserWithTwoAccounts
+    ):
+        transfer_request = TransferRequest(
+            fromAccountId=user_with_two_accounts.first_account_id,
+            toAccountId=user_with_two_accounts.second_account_id,
+            amount=user_with_two_accounts.first_balance
+        )
 
+        response = api_manager.user_steps.transfer(
+            user_with_two_accounts.create_user_request,
+            transfer_request
+        )
+
+        assert response.fromAccountIdBalance == 0, \
+            f"Ожидаем, что баланс счёта равен 0, баланс в ответе: {response.fromAccountIdBalance}"
+
+        sender_account_from_db = Account.get_account_by_id(db_session, user_with_two_accounts.first_account_id)
+        assert sender_account_from_db.balance == 0, \
+            f"Ожидаем, что баланс счёта в БД равен 0, баланс в БД: {sender_account_from_db.balance}"
+
+        recipient_account_from_db = Account.get_account_by_id(db_session, user_with_two_accounts.second_account_id)
+        assert recipient_account_from_db.balance == user_with_two_accounts.second_balance + user_with_two_accounts.first_balance, \
+            f"Ожидаем, что баланс счёта на который переводим"
 
 
 

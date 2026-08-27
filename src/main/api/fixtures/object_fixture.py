@@ -7,7 +7,7 @@ from src.main.api.classes.api_manager import ApiManager
 from src.main.api.models.create_user_response import CreateUserResponse
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def created_obj():
     objects: List[Any] = []
     yield objects
