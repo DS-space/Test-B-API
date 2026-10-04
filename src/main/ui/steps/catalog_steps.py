@@ -25,7 +25,7 @@ class CatalogSteps:
         expect(button).to_have_text("Remove")
         return self
 
-    @allure.step("Удаляем  товар из корзины: {product_name}")
+    @allure.step("Удаляем товар из корзины: {product_name}")
     def remove_from_cart(self, product_name: str):
         button = self.catalog_page.remove_from_cart(product_name)
         expect(button).to_have_text("Add to cart")

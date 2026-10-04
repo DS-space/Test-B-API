@@ -11,7 +11,7 @@ class BasketPage:
     def __init__(self, page: Page):
         self.page = page
         self.cart_link = page.locator('[data-test="shopping-cart-link"]')
-        self.cart_items = page.locator('[data-test="inventory-item"]')
+        self.cart_items = page.locator('.cart_item')
         self.checkout_button = page.locator('[data-test="checkout"]')
         self.error_message = page.locator('[data-test="error"]')
 

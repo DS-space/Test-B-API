@@ -52,6 +52,7 @@ class CatalogPage(BasePage):
 
     def get_products_count(self) -> int:
         """Возвращаем количество товаров в каталоге"""
+        self.product_cards.first.wait_for(state='attached', timeout=10000)
         return self.product_cards.count()
 
     def get_product_names(self) -> List[str]:
@@ -79,7 +80,7 @@ class CatalogPage(BasePage):
         price = float(price_text.replace("$", ""))
 
         card.locator(".inventory_item_name").click()
-        detail_name = self.page.locator('[data-test="inventory-item-name"]').inner_text()
+        detail_name = self.page.locator('.inventory_details_name').inner_text()
         detail_price_text = self.page.locator('[data-test="inventory-item-price"]').inner_text()
         detail_price = float(detail_price_text.replace("$", ""))
 
