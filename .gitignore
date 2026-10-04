@@ -3,3 +3,11 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+infra/
+.idea/
+allure-results/
+allure-ui
+pytestdebug.log
+Dockerfile
+docker-compose.yml
+requirements.txt
